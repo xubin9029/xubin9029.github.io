@@ -18,6 +18,10 @@ body{
     position: relative;
 }
 
+h1{
+  clear: both;
+}
+
 .pic{
     width:200px;
 }
