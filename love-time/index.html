@@ -23,7 +23,7 @@
 </head>
 <body>
 <audio autoplay="autopaly">
-  <source src="renxi.mp3" type="audio/mp3" />
+  <source id="voice" src="renxi.mp3" type="audio/mp3" autoplay="autopaly"/>
 </audio>
 <div id="main">
   <div id="error">本页面采用HTML5编辑，目前您的浏览器无法显示，请换成谷歌(<a href="http://www.google.cn/chrome/intl/zh-CN/landing_chrome.html?hl=zh-CN&brand=CHMI">Chrome</a>)或者火狐(<a href="http://firefox.com.cn/download/">Firefox</a>)浏览器，或者其他游览器的最新版本。</div>
@@ -51,26 +51,52 @@
 
 
 <script>
-    //--创建页面监听，等待微信端页面加载完毕 触发音频播放
-document.addEventListener('DOMContentLoaded', function () {
-    function audioAutoPlay() {
-        var audio = document.getElementById('audio');
-            audio.play();
-        document.addEventListener("WeixinJSBridgeReady", function () {
-            audio.play();
-        }, false);
-    }
-    audioAutoPlay();
-});
-//--创建触摸监听，当浏览器打开页面时，触摸屏幕触发事件，进行音频播放
-document.addEventListener('touchstart', function () {
-    function audioAutoPlay() {
-        var audio = document.getElementById('audio');
-            audio.play();
-    }
-    audioAutoPlay();
-});
+    $(document).ready(function() {
 
+        var voice = document.getElementById('voice');
+        //调用 <audio> 元素提供的方法 play()
+        voice.play();
+        //判斷 WeixinJSBridge 是否存在
+        if (typeof WeixinJSBridge == "object" && typeof WeixinJSBridge.invoke == "function") {
+            voice.play();
+        } else {
+            //監聽客户端抛出事件"WeixinJSBridgeReady"
+            if (document.addEventListener) {
+                document.addEventListener("WeixinJSBridgeReady", function(){
+                    voice.play();
+                }, false);
+            } else if (document.attachEvent) {
+                document.attachEvent("WeixinJSBridgeReady", function(){
+                    voice.play();
+                });
+                document.attachEvent("onWeixinJSBridgeReady", function(){
+                    voice.play();
+                });
+            }
+        }
+        
+        //voiceStatu用來記録狀態,使 touchstart 事件只能觸發一次有效,避免與 click 事件衝突
+        var voiceStatu = true;
+        //监听 touchstart 事件进而调用 <audio> 元素提供的 play() 方法播放音频
+        document.addEventListener("touchstart",function(e){
+            if(voiceStatu){
+                voice.play();
+                voiceStatu = false;
+            }
+        }, false);
+
+
+        // $('.musicPlay').click(function() {
+        //     // 依據 audio 的 paused 属性返回音频是否已暂停來判斷播放還是暫停音频。
+        //     if (voice.paused) {
+        //         voice.play();
+        //         $('.musicPlay>p>img').attr('src', 'http://upload-images.jianshu.io/upload_images/6171922-4d23a92a9c256d0d.gif?imageMogr2/auto-orient/strip');
+        //     } else {
+        //         voice.pause();
+        //         $('.musicPlay>p>img').attr('src', 'http://upload-images.jianshu.io/upload_images/6171922-e5206046b43e1efe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240');
+        //     }
+        // });
+    });
 
     </script>
 <script>
